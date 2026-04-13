@@ -29,10 +29,10 @@ let g:taboo_tabline =
     \ get(g:, "taboo_tabline", 1)
 
 let g:taboo_tab_format =
-    \ get(g:, "taboo_tab_format", " %f%m ")
+    \ get(g:, "taboo_tab_format", " %f%m ")
 
 let g:taboo_renamed_tab_format =
-    \ get(g:, "taboo_renamed_tab_format", " [%l]%m ")
+    \ get(g:, "taboo_renamed_tab_format", " [%l]%m ")
 
 let g:taboo_modified_tab_flag =
     \ get(g:, "taboo_modified_tab_flag", "*")
@@ -87,6 +87,9 @@ fu TabooTabline()
                 endwhile
                 continue
             else
+                if i == tabpagenr('$') && current_width <= max_width + next_tabs_label_len
+                    break
+                endif
                 let show_next_tabs_label = 1
                 let trim = current_width - max_width
                 let trimmed = strcharpart(title, -1, width-trim+1)
@@ -104,9 +107,13 @@ fu TabooTabline()
         let tabline .= title[0]
     endfor
 
+    let haslast = show_next_tabs_label || g:taboo_close_tabs_label || current_width >= max_width
+
     let tabline .= '%#TabLineFill#%T%=' 
     let tabline .= show_next_tabs_label ? ('%#' . g:more_tabs_highlight . '#' . g:taboo_next_tabs_label) : ''
-    let tabline .= '%#TabLine#%999X' . g:taboo_close_tabs_label
+    let tabline .= g:taboo_close_tabs_label ? '%#TabLine#%999X' . g:taboo_close_tabs_label : ''
+    let tabline .= haslast ? '' : '%#TabLineFill# ' " <c-v>ax0 - &nbsp;
+    let g:res = tabline
     return tabline
 endfu
 
